@@ -128,6 +128,8 @@ def layouts(T):
     out.append(("x qx z qz y qy", Tq.transpose(0, 3, 2, 5, 1, 4), (Nx, 3, Nz, 3, Ny, 3), "fact"))
     out.append(("x qx y qy z qz", Tq.transpose(0, 3, 1, 4, 2, 5), (Nx, 3, Ny, 3, Nz, 3), "fact"))
     out.append(("xzy|qx qy qz", Tq.transpose(0, 2, 1, 3, 4, 5), (Nx, Nz, Ny, 3, 3, 3), "fact"))
+    out.append(("paired (x.qx)(z.qz)(y.qy) [current]", Tq.transpose(0, 3, 2, 5, 1, 4).reshape(Nx * 3, Nz * 3, Ny * 3), (Nx * 3, Nz * 3, Ny * 3), "paired"))
+    out.append(("paired (x.qx)(y.qy)(z.qz)", Tq.transpose(0, 3, 1, 4, 2, 5).reshape(Nx * 3, Ny * 3, Nz * 3), (Nx * 3, Ny * 3, Nz * 3), "paired"))
     Tb = T.reshape((2,) * 7 + (2,) * 5 + (2,) * 7 + (27,))   # x bits(0-6), y bits(7-11), z bits(12-18), q(19)
     xb = list(range(0, 7)); yb = list(range(7, 12)); zb = list(range(12, 19))
     out.append(("quantics x z y |q", Tb.transpose(xb + zb + yb + [19]), (2,) * 19 + (27,), "qtt"))
@@ -136,13 +138,20 @@ def layouts(T):
     return out
 
 
-def summarize(name, ranks, elems, dims, kind, dense):
+def raw_proxy(ranks, dims):
+    """重複込み scalar 要求の代理: 全コアの fiber 要素数 + 内部 bond の pivot 行列 r_k^2。
+    paired 配置では研究側の式 3Nx r1 + 3Nz r1 r2 + 3H r2 + r1^2 + r2^2 に一致する。"""
+    return int(sum(ranks[k] * dims[k] * ranks[k + 1] for k in range(len(dims))) + sum(r * r for r in ranks[1:-1]))
+
+
+def summarize(name, ranks, elems, dims, kind, dense, err):
     if kind == "qlast":
         spatial = sum(ranks[k] * dims[k] * ranks[k + 1] for k in range(len(dims) - 1))
     else:
         spatial = None
     return dict(layout=name, ranks=ranks, max_rank=max(ranks), elements=int(elems),
-                elements_over_dense=elems / dense, spatial_fiber_points=spatial)
+                elements_over_dense=elems / dense, spatial_fiber_points=spatial,
+                raw_scalar_proxy=raw_proxy(ranks, dims), achieved_rel_err=float(err))
 
 
 def main():
@@ -170,13 +179,28 @@ def main():
         rec = dict(eps=eps, up_over_U=float(np.sqrt(((u[0] - U) ** 2 + u[1] ** 2 + u[2] ** 2).mean()) / np.sqrt((U ** 2).mean())),
                    dfR_over_fstar=float(np.linalg.norm(dfR) / nf),
                    rho_min=float(rho.min()), umax=float(max(np.abs(a).max() for a in u)))
-        for label, arr in [("f_input", f), ("f_star", fstar), ("f_star_lin", flin), ("df_star_R", dfR)]:
-            T = arr.transpose(0, 2, 1, 3)   # xzy|q
-            ranks, elems, cores = tt_svd(T, (Nx, Nz, Ny, 27), budget)
-            rec[label] = dict(ranks=ranks, elements=int(elems), spatial_fiber_points=int(sum(ranks[k] * d * ranks[k + 1] for k, d in enumerate((Nx, Nz, Ny)))))
-            if label == "f_star":
+        for lname, perm, dims in [("xzy|q", (0, 2, 1, 3), (Nx, Nz, Ny, 27)),
+                                  ("paired", None, (Nx * 3, Nz * 3, Ny * 3))]:
+            block = {}
+            for label, arr in [("f_input", f), ("f_star", fstar), ("f_star_lin", flin), ("df_star_R", dfR)]:
+                if perm is not None:
+                    T = arr.transpose(*perm)
+                else:
+                    T = arr.reshape(Nx, Ny, Nz, 3, 3, 3).transpose(0, 3, 2, 5, 1, 4).reshape(dims)
+                ranks, elems, cores = tt_svd(T, dims, budget)
                 err = np.linalg.norm(tt_full(cores) - T.reshape(-1)) / nf
-                rec[label]["achieved_rel_err"] = float(err)
+                block[label] = dict(ranks=ranks, elements=int(elems), raw_scalar_proxy=raw_proxy(ranks, dims),
+                                    achieved_err_over_fstar=float(err))
+                if lname == "xzy|q":
+                    block[label]["spatial_fiber_points"] = int(sum(ranks[k] * d * ranks[k + 1] for k, d in enumerate(dims[:-1])))
+                if label == "df_star_R":
+                    frac = {}
+                    for fr in (0.5, 0.25, 0.1):
+                        rk, el, co = tt_svd(T, dims, budget * fr)
+                        e2 = np.linalg.norm(tt_full(co) - T.reshape(-1)) / nf
+                        frac[str(fr)] = dict(ranks=rk, elements=int(el), raw_scalar_proxy=raw_proxy(rk, dims), achieved_err_over_fstar=float(e2))
+                    block[label]["budget_fraction"] = frac
+            rec[lname] = block
         rec["seconds"] = round(time.time() - t0, 1)
         results["amplitude_sweep"].append(rec)
         print(json.dumps(rec), flush=True)
@@ -189,8 +213,9 @@ def main():
         budget = args.tol * np.linalg.norm(fstar)
         for name, arr, dims, kind in layouts(fstar):
             t0 = time.time()
-            ranks, elems, _ = tt_svd(arr, dims, budget)
-            rec = summarize(name, ranks, elems, dims, kind, dense)
+            ranks, elems, cores = tt_svd(arr, dims, budget)
+            err = np.linalg.norm(tt_full(cores) - np.ascontiguousarray(arr).reshape(-1)) / np.linalg.norm(fstar)
+            rec = summarize(name, ranks, elems, dims, kind, dense, err)
             rec.update(eps=eps, seconds=round(time.time() - t0, 1))
             results["layout_sweep"].append(rec)
             print(json.dumps(rec), flush=True)
