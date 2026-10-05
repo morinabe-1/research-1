@@ -1,0 +1,598 @@
+{
+ "config": {
+  "Nx": 128,
+  "Ny": 32,
+  "Nz": 128,
+  "tau": 2.036,
+  "H": 128.0,
+  "Umax": 0.05,
+  "modes": [
+   [
+    1,
+    1
+   ],
+   [
+    2,
+    1
+   ],
+   [
+    1,
+    2
+   ],
+   [
+    3,
+    2
+   ]
+  ],
+  "tol": 1e-08
+ },
+ "amplitude_sweep": [
+  {
+   "eps": 0.01,
+   "up_over_U": 0.027147882979743593,
+   "dfR_over_fstar": 2.2549205157507252e-07,
+   "rho_min": 0.9999983126478337,
+   "umax": 0.023030831597656374,
+   "f_input": {
+    "ranks": [
+     1,
+     10,
+     11,
+     10,
+     1
+    ],
+    "elements": 19150,
+    "spatial_fiber_points": 18880
+   },
+   "f_star": {
+    "ranks": [
+     1,
+     10,
+     11,
+     10,
+     1
+    ],
+    "elements": 19150,
+    "spatial_fiber_points": 18880,
+    "achieved_rel_err": 1.6683514337763602e-09
+   },
+   "f_star_lin": {
+    "ranks": [
+     1,
+     9,
+     10,
+     10,
+     1
+    ],
+    "elements": 16142,
+    "spatial_fiber_points": 15872
+   },
+   "df_star_R": {
+    "ranks": [
+     1,
+     4,
+     2,
+     3,
+     1
+    ],
+    "elements": 1809,
+    "spatial_fiber_points": 1728
+   },
+   "seconds": 23.7
+  },
+  {
+   "eps": 0.1,
+   "up_over_U": 0.271478829797436,
+   "dfR_over_fstar": 2.2553032992454728e-05,
+   "rho_min": 0.9998312647833623,
+   "umax": 0.03607690118164184,
+   "f_input": {
+    "ranks": [
+     1,
+     12,
+     13,
+     10,
+     1
+    ],
+    "elements": 25934,
+    "spatial_fiber_points": 25664
+   },
+   "f_star": {
+    "ranks": [
+     1,
+     11,
+     13,
+     10,
+     1
+    ],
+    "elements": 24142,
+    "spatial_fiber_points": 23872,
+    "achieved_rel_err": 3.5458164366670307e-09
+   },
+   "f_star_lin": {
+    "ranks": [
+     1,
+     11,
+     12,
+     10,
+     1
+    ],
+    "elements": 22414,
+    "spatial_fiber_points": 22144
+   },
+   "df_star_R": {
+    "ranks": [
+     1,
+     6,
+     4,
+     6,
+     1
+    ],
+    "elements": 4770,
+    "spatial_fiber_points": 4608
+   },
+   "seconds": 22.1
+  },
+  {
+   "eps": 0.3,
+   "up_over_U": 0.8144364893923077,
+   "dfR_over_fstar": 0.0002032558121143783,
+   "rho_min": 0.9984813830502604,
+   "umax": 0.06506816692383176,
+   "f_input": {
+    "ranks": [
+     1,
+     15,
+     14,
+     10,
+     1
+    ],
+    "elements": 33550,
+    "spatial_fiber_points": 33280
+   },
+   "f_star": {
+    "ranks": [
+     1,
+     15,
+     14,
+     10,
+     1
+    ],
+    "elements": 33550,
+    "spatial_fiber_points": 33280,
+    "achieved_rel_err": 9.848910404582295e-10
+   },
+   "f_star_lin": {
+    "ranks": [
+     1,
+     14,
+     13,
+     10,
+     1
+    ],
+    "elements": 29518,
+    "spatial_fiber_points": 29248
+   },
+   "df_star_R": {
+    "ranks": [
+     1,
+     8,
+     5,
+     6,
+     1
+    ],
+    "elements": 7266,
+    "spatial_fiber_points": 7104
+   },
+   "seconds": 22.0
+  },
+  {
+   "eps": 1.0,
+   "up_over_U": 2.71478829797436,
+   "dfR_over_fstar": 0.002293762396424007,
+   "rho_min": 0.9831264783362257,
+   "umax": 0.16653759702149648,
+   "f_input": {
+    "ranks": [
+     1,
+     16,
+     14,
+     10,
+     1
+    ],
+    "elements": 35470,
+    "spatial_fiber_points": 35200
+   },
+   "f_star": {
+    "ranks": [
+     1,
+     16,
+     14,
+     10,
+     1
+    ],
+    "elements": 35470,
+    "spatial_fiber_points": 35200,
+    "achieved_rel_err": 2.0687327928229904e-09
+   },
+   "f_star_lin": {
+    "ranks": [
+     1,
+     16,
+     14,
+     10,
+     1
+    ],
+    "elements": 35470,
+    "spatial_fiber_points": 35200
+   },
+   "df_star_R": {
+    "ranks": [
+     1,
+     10,
+     5,
+     6,
+     1
+    ],
+    "elements": 8802,
+    "spatial_fiber_points": 8640
+   },
+   "seconds": 21.9
+  },
+  {
+   "eps": 2.0,
+   "up_over_U": 5.42957659594872,
+   "dfR_over_fstar": 0.009648767220053716,
+   "rho_min": 0.9325059133449028,
+   "umax": 0.31149392573244605,
+   "f_input": {
+    "ranks": [
+     1,
+     16,
+     15,
+     10,
+     1
+    ],
+    "elements": 37838,
+    "spatial_fiber_points": 37568
+   },
+   "f_star": {
+    "ranks": [
+     1,
+     16,
+     15,
+     10,
+     1
+    ],
+    "elements": 37838,
+    "spatial_fiber_points": 37568,
+    "achieved_rel_err": 2.694607994871464e-10
+   },
+   "f_star_lin": {
+    "ranks": [
+     1,
+     16,
+     14,
+     10,
+     1
+    ],
+    "elements": 35470,
+    "spatial_fiber_points": 35200
+   },
+   "df_star_R": {
+    "ranks": [
+     1,
+     10,
+     6,
+     6,
+     1
+    ],
+    "elements": 10274,
+    "spatial_fiber_points": 10112
+   },
+   "seconds": 22.9
+  }
+ ],
+ "layout_sweep": [
+  {
+   "layout": "xzy|q",
+   "ranks": [
+    1,
+    11,
+    13,
+    10,
+    1
+   ],
+   "max_rank": 13,
+   "elements": 24142,
+   "elements_over_dense": 0.001705452247902199,
+   "spatial_fiber_points": 23872,
+   "eps": 0.1,
+   "seconds": 4.4
+  },
+  {
+   "layout": "xyz|q",
+   "ranks": [
+    1,
+    11,
+    34,
+    10,
+    1
+   ],
+   "max_rank": 34,
+   "elements": 57166,
+   "elements_over_dense": 0.004038351553457754,
+   "spatial_fiber_points": 56896,
+   "eps": 0.1,
+   "seconds": 4.4
+  },
+  {
+   "layout": "x qx z qz y qy",
+   "ranks": [
+    1,
+    11,
+    25,
+    19,
+    12,
+    3,
+    1
+   ],
+   "max_rank": 25,
+   "elements": 64878,
+   "elements_over_dense": 0.004583146837022569,
+   "spatial_fiber_points": null,
+   "eps": 0.1,
+   "seconds": 4.3
+  },
+  {
+   "layout": "x qx y qy z qz",
+   "ranks": [
+    1,
+    11,
+    25,
+    34,
+    17,
+    3,
+    1
+   ],
+   "max_rank": 34,
+   "elements": 37704,
+   "elements_over_dense": 0.002663506401909722,
+   "spatial_fiber_points": null,
+   "eps": 0.1,
+   "seconds": 4.7
+  },
+  {
+   "layout": "xzy|qx qy qz",
+   "ranks": [
+    1,
+    11,
+    13,
+    10,
+    6,
+    3,
+    1
+   ],
+   "max_rank": 13,
+   "elements": 24115,
+   "elements_over_dense": 0.0017035448992693866,
+   "spatial_fiber_points": null,
+   "eps": 0.1,
+   "seconds": 4.4
+  },
+  {
+   "layout": "quantics x z y |q",
+   "ranks": [
+    1,
+    2,
+    4,
+    8,
+    15,
+    15,
+    15,
+    12,
+    18,
+    29,
+    36,
+    33,
+    30,
+    24,
+    13,
+    25,
+    29,
+    28,
+    19,
+    10,
+    1
+   ],
+   "max_rank": 36,
+   "elements": 17006,
+   "elements_over_dense": 0.001201347068504051,
+   "spatial_fiber_points": null,
+   "eps": 0.1,
+   "seconds": 7.0
+  },
+  {
+   "layout": "quantics (xz)interleave y |q",
+   "ranks": [
+    1,
+    2,
+    4,
+    8,
+    16,
+    32,
+    63,
+    76,
+    71,
+    62,
+    56,
+    47,
+    38,
+    24,
+    13,
+    25,
+    29,
+    28,
+    19,
+    10,
+    1
+   ],
+   "max_rank": 76,
+   "elements": 58234,
+   "elements_over_dense": 0.004113797788266782,
+   "spatial_fiber_points": null,
+   "eps": 0.1,
+   "seconds": 14.5
+  },
+  {
+   "layout": "xzy|q",
+   "ranks": [
+    1,
+    16,
+    14,
+    10,
+    1
+   ],
+   "max_rank": 16,
+   "elements": 35470,
+   "elements_over_dense": 0.002505690963179977,
+   "spatial_fiber_points": 35200,
+   "eps": 1.0,
+   "seconds": 4.8
+  },
+  {
+   "layout": "xyz|q",
+   "ranks": [
+    1,
+    16,
+    50,
+    10,
+    1
+   ],
+   "max_rank": 50,
+   "elements": 91918,
+   "elements_over_dense": 0.00649332117151331,
+   "spatial_fiber_points": 91648,
+   "eps": 1.0,
+   "seconds": 4.5
+  },
+  {
+   "layout": "x qx z qz y qy",
+   "ranks": [
+    1,
+    16,
+    41,
+    20,
+    12,
+    3,
+    1
+   ],
+   "max_rank": 41,
+   "elements": 110857,
+   "elements_over_dense": 0.007831220273618345,
+   "spatial_fiber_points": null,
+   "eps": 1.0,
+   "seconds": 4.6
+  },
+  {
+   "layout": "x qx y qy z qz",
+   "ranks": [
+    1,
+    16,
+    41,
+    53,
+    29,
+    3,
+    1
+   ],
+   "max_rank": 53,
+   "elements": 89308,
+   "elements_over_dense": 0.006308944137008102,
+   "spatial_fiber_points": null,
+   "eps": 1.0,
+   "seconds": 5.0
+  },
+  {
+   "layout": "xzy|qx qy qz",
+   "ranks": [
+    1,
+    16,
+    14,
+    10,
+    6,
+    3,
+    1
+   ],
+   "max_rank": 16,
+   "elements": 35443,
+   "elements_over_dense": 0.0025037836145471643,
+   "spatial_fiber_points": null,
+   "eps": 1.0,
+   "seconds": 4.6
+  },
+  {
+   "layout": "quantics x z y |q",
+   "ranks": [
+    1,
+    2,
+    4,
+    8,
+    16,
+    21,
+    21,
+    16,
+    27,
+    45,
+    56,
+    53,
+    44,
+    28,
+    14,
+    27,
+    35,
+    32,
+    19,
+    10,
+    1
+   ],
+   "max_rank": 56,
+   "elements": 31500,
+   "elements_over_dense": 0.0022252400716145835,
+   "spatial_fiber_points": null,
+   "eps": 1.0,
+   "seconds": 9.1
+  },
+  {
+   "layout": "quantics (xz)interleave y |q",
+   "ranks": [
+    1,
+    2,
+    4,
+    8,
+    16,
+    32,
+    64,
+    117,
+    129,
+    115,
+    102,
+    78,
+    51,
+    28,
+    14,
+    27,
+    35,
+    32,
+    19,
+    10,
+    1
+   ],
+   "max_rank": 129,
+   "elements": 138012,
+   "elements_over_dense": 0.009749518500434028,
+   "spatial_fiber_points": null,
+   "eps": 1.0,
+   "seconds": 18.9
+  }
+ ]
+}
