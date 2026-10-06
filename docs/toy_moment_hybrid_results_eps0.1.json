@@ -16,11 +16,11 @@
   "rel_err": 4.227951313478045e-09
  },
  "dense": {
-  "collision_s": 0.5022467829999187,
-  "streaming_s": 0.20650302799992915
+  "collision_s": 0.5553329840000174,
+  "streaming_s": 0.23461082300002545
  },
  "hybrid_randomized_svd": {
-  "seconds": 0.32470336899996255,
+  "seconds": 0.33279738200002384,
   "ranks": [
    20,
    10
@@ -30,7 +30,7 @@
  },
  "hybrid_cross": {
   "pivots_from_current_feq": {
-   "seconds": 0.007399963000011667,
+   "seconds": 0.007829552999965017,
    "ranks": [
     20,
     10
@@ -44,7 +44,7 @@
    "within_budget": true
   },
   "pivots_from_shifted_state_10": {
-   "seconds": 0.020084733999965465,
+   "seconds": 0.017685269000025983,
    "ranks": [
     37,
     12
@@ -58,7 +58,7 @@
    "within_budget": true
   },
   "pivots_from_shifted_state_50": {
-   "seconds": 0.020424398000045585,
+   "seconds": 0.019134770999983175,
    "ranks": [
     38,
     13
@@ -73,10 +73,10 @@
   }
  },
  "hybrid": {
-  "moments_s": 0.00595353400001386,
+  "moments_s": 0.006105671000000257,
   "moments_maxrel_err": 1.768405771004316e-08,
-  "coefficient_fields_s": 0.01480320699999993,
-  "feq_construction_s": 0.007399963000011667,
+  "coefficient_fields_s": 0.015519398999970235,
+  "feq_construction_s": 0.007829552999965017,
   "feq_method": "fixed-pivot cross (pivots from current f_eq)",
   "feq_tt_ranks": [
    20,
@@ -85,9 +85,9 @@
   "feq_budget_abs": 2.605840976896736e-07,
   "feq_abs_err_full": 1.536467598508001e-07,
   "feq_err_over_fstar": 6.002377079601539e-10,
-  "verify_plane_s": 0.015253915000016605,
+  "verify_plane_s": 0.014116540000031819,
   "feq_plane_rel_err": 1.2498823455196178e-10,
-  "assemble_sum_round_s": 0.027553614999987985,
+  "assemble_sum_round_s": 0.02798532700001033,
   "fstar_tt_ranks": [
    25,
    12
@@ -98,12 +98,12 @@
    "y16": 1.981096731781466e-09,
    "y31": 2.216274904699605e-09
   },
-  "construction_total_s": 0.05571031900001344,
-  "construction_plus_plane_verify_s": 0.07096423400003005
+  "construction_total_s": 0.05743994999994584,
+  "construction_plus_plane_verify_s": 0.07155648999997766
  },
  "ratios": {
-  "construction_over_dense_collision": 0.11092220176554614,
-  "construction_plus_plane_verify_over_dense_collision": 0.14129355608046082,
-  "construction_over_dense_collision_plus_streaming": 0.07860364565236605
+  "construction_over_dense_collision": 0.10343334837813999,
+  "construction_plus_plane_verify_over_dense_collision": 0.12885330434465136,
+  "construction_over_dense_collision_plus_streaming": 0.07271396964055536
  }
 }

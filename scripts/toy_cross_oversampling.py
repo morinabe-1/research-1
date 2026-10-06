@@ -115,7 +115,9 @@ def main():
         p31, v31, _ = plane_metrics(tt, Tex, 31)
         rec = dict(label=label, pivot_ranks=[len(piv["I1"]), len(piv["J2"])], n_raw=int(nraw), seconds=dt,
                    cond_P1=float(conds[0]), cond_P2=float(conds[1]),
+                   cond_cap_1e12_passed=bool(max(conds) <= 1e12),
                    eq_rel_err=float(err / nTex), eq_rel_tol_passed=bool(err / nTex <= eq_tol_rel),
+                   both_passed=bool(err / nTex <= eq_tol_rel and max(conds) <= 1e12),
                    face_y2_pop_rel=float(p2), face_y2_vel_rel_fstar=float(v2), face_y31_pop_rel=float(p31), face_y31_vel_rel_fstar=float(v31),
                    face_y2_vel_amplification=float(v2 / (T.OMEGA * p2)) if p2 > 0 else None)
         res["cases"].append(rec); print(json.dumps(rec), flush=True)
@@ -130,11 +132,21 @@ def main():
     # (c) 現在 Eq 自身の TT-SVD の pivot（上限性能）
     ref_now = T.tt_svd(Tex, (Nx * 3, Nz * 3, Ny * 3), budget_eq)
     run_case("c_currentEq_pivots_solve", ref_now, "solve")
-    # 参考: 前回 Eq（近傍状態の Eq）の pivot、rank 無制限 1e-9
+    # (d) 前回 Eq（近傍状態の Eq）の pivot、絶対予算 budget_eq、rank 上限なし
     mf_p = T.coefficient_fields(rho_p.transpose(0, 2, 1), tuple((rho_p * uu).transpose(0, 2, 1) for uu in u_p))
     Tex_p = T.exact_feq_paired(mf_p, Abas, Dbas, Bbas)
     prevEq = T.tt_svd(Tex_p, (Nx * 3, Nz * 3, Ny * 3), budget_eq)
     run_case("d_prevEq_pivots_solve", prevEq, "solve")
+    # ---- 交絡を外した比較（レビュー 6.2）: 打切り予算・rank 上限・solver を揃えて出自だけを変える ----
+    # (e) 前回 F を Eq と同じ絶対予算 budget_eq、rank 上限なしで打ち切る → solve / pinv
+    prevF_same = T.tt_svd(fp_paired, (Nx * 3, Nz * 3, Ny * 3), budget_eq)
+    run_case("e_prevF_same_budget_nocap_solve", prevF_same, "solve")
+    run_case("e_prevF_same_budget_nocap_pinv", prevF_same, "pinv", rcond=1e-12)
+    # (f) 前回 Eq を F と同じ rank 上限 (25,16) で打ち切る → solve
+    prevEq_cap = tt_svd_capped(Tex_p, (Nx * 3, Nz * 3, Ny * 3), budget_eq, (25, 16))
+    run_case("f_prevEq_rankcap_25_16_solve", prevEq_cap, "solve")
+    # (g) 前回 Eq、同予算、pinv（solver の影響）
+    run_case("g_prevEq_pivots_pinv", prevEq, "pinv", rcond=1e-12)
     with open(args.out, "w") as fh:
         json.dump(res, fh, indent=1)
     print("written", args.out)

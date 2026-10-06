@@ -205,7 +205,7 @@ def moments_from_paired(cores):
 
 
 # ---------- 構造付き randomized TT-SVD: T = sum_i a_i(qx) d_i(qz) b_i(qy) m_i(x,z,y) ----------
-def structured_tt_svd(mfields, Abas, Dbas, Bbas, tol_abs, k=40, power=1, rng=None):
+def structured_tt_svd(mfields, Abas, Dbas, Bbas, tol_abs, k=40, power=1, rng=None, return_diag=False, probe_cols=16):
     """T[(x,qx),(z,qz),(y,qy)] = sum_i a_i(qx) d_i(qz) b_i(qy) m_i(x,z,y) の randomized TT-SVD。
     実体化せず、10 本の (Nx x Nz*Ny) 行列との batched matmul で範囲探索する。"""
     rng = rng or np.random.default_rng(0)
@@ -214,16 +214,18 @@ def structured_tt_svd(mfields, Abas, Dbas, Bbas, tol_abs, k=40, power=1, rng=Non
     Mt = np.ascontiguousarray(M.transpose(0, 2, 1))                       # m_i(s, x)
     DB = np.einsum("iq,ip->iqp", Dbas, Bbas).reshape(nI, 9)                # (i, (qz,qy))
 
-    def apply_T(Om):            # Om: (Nz, 3, Ny, 3, k) -> Y: (Nx*3, k)
-        Om_r = Om.transpose(0, 2, 1, 3, 4).reshape(Nz * Ny, 9, k)         # (s, (qz,qy), k)
-        Omt = np.einsum("ir,srl->isl", DB, Om_r)                           # (i, s, k)
-        Yi = M @ Omt                                                       # (i, Nx, k)
-        return np.einsum("iq,ixl->xql", Abas, Yi).reshape(Nx * 3, k)
+    def apply_T(Om):            # Om: (Nz, 3, Ny, 3, kk) -> Y: (Nx*3, kk)
+        kk = Om.shape[-1]
+        Om_r = Om.transpose(0, 2, 1, 3, 4).reshape(Nz * Ny, 9, kk)        # (s, (qz,qy), kk)
+        Omt = np.einsum("ir,srl->isl", DB, Om_r)                           # (i, s, kk)
+        Yi = M @ Omt                                                       # (i, Nx, kk)
+        return np.einsum("iq,ixl->xql", Abas, Yi).reshape(Nx * 3, kk)
 
-    def apply_Tt(Y):            # Y: (Nx*3, k) -> Z: (Nz,3,Ny,3,k)
-        Yi = np.einsum("iq,xql->ixl", Abas, Y.reshape(Nx, 3, k))          # (i, Nx, k)
-        Zi = Mt @ Yi                                                       # (i, s, k)
-        Z = np.einsum("ir,isl->srl", DB, Zi).reshape(Nz, Ny, 3, 3, k)     # (z,y,qz,qy,k)
+    def apply_Tt(Y):            # Y: (Nx*3, kk) -> Z: (Nz,3,Ny,3,kk)
+        kk = Y.shape[-1]
+        Yi = np.einsum("iq,xql->ixl", Abas, Y.reshape(Nx, 3, kk))         # (i, Nx, kk)
+        Zi = Mt @ Yi                                                       # (i, s, kk)
+        Z = np.einsum("ir,isl->srl", DB, Zi).reshape(Nz, Ny, 3, 3, kk)    # (z,y,qz,qy,kk)
         return Z.transpose(0, 2, 1, 3, 4)
 
     Y = apply_T(rng.standard_normal((Nz, 3, Ny, 3, k)))
@@ -249,7 +251,21 @@ def structured_tt_svd(mfields, Abas, Dbas, Bbas, tol_abs, k=40, power=1, rng=Non
         r2 -= 1
     core2 = U2[:, :r2].reshape(r1, Nz * 3, r2)
     core3 = (s2[:r2, None] * Vt2[:r2]).reshape(r2, Ny * 3, 1)
-    return [core1, core2, core3]
+    cores = [core1, core2, core3]
+    if not return_diag:
+        return cores
+    # 事後台帳: ||A - QB_hat||^2 = ||(I-QQ^T)A||^2 + tail1^2 + tail2^2。
+    # 射影残差 ||(I-QQ^T)A||_F は fresh Gaussian sketch で不偏推定する（確率的。決定論的上界ではない）。
+    tail1 = float(np.sqrt((sv[r1:] ** 2).sum())); tail2 = float(np.sqrt((s2[r2:] ** 2).sum()))
+    Omp = rng.standard_normal((Nz, 3, Ny, 3, probe_cols))
+    Yp = apply_T(Omp)                                   # A Ω'
+    Rp = Yp - Q @ (Q.T @ Yp)                            # (I - QQ^T) A Ω'
+    proj_est = float(np.linalg.norm(Rp) / np.sqrt(probe_cols))
+    ledger = float(np.sqrt(proj_est ** 2 + tail1 ** 2 + tail2 ** 2))
+    diag = dict(k=k, power=power, ranks=[r1, r2], tail1=tail1, tail2=tail2,
+                projection_residual_estimate=proj_est, probe_cols=probe_cols, ledger_total_estimate=ledger,
+                tail_only=float(np.sqrt(tail1 ** 2 + tail2 ** 2)))
+    return cores, diag
 
 
 # ---------- 固定 pivot の cross interpolation（oracle は dense moment から O(1)） ----------
@@ -380,8 +396,9 @@ def main():
     # ---- hybrid ----
     t_mom, mom = timeit(lambda: moments_from_paired(state))
     rho_d, jx_d, jy_d, jz_d = mom
-    mom_err = max(np.abs(rho_d - rho.transpose(0, 2, 1)).max() / rho.max(),
-                  np.abs(jx_d - (rho * u[0]).transpose(0, 2, 1)).max() / np.abs(rho * u[0]).max())
+    mom_err = max([np.abs(rho_d - rho.transpose(0, 2, 1)).max() / np.abs(rho).max()] +
+                  [np.abs(jd - (rho * uu).transpose(0, 2, 1)).max() / np.abs(rho * uu).max()
+                   for jd, uu in zip((jx_d, jy_d, jz_d), u)])   # rho, jx, jy, jz の 4 場すべて
     t_coef, mf = timeit(lambda: coefficient_fields(rho_d, (jx_d, jy_d, jz_d)))
     budget_eq = 0.5 * args.tol * nf / OMEGA
     t_svd, feq_tt_rand = timeit(lambda: structured_tt_svd(mf, Abas, Dbas, Bbas, budget_eq, k=40, power=1, rng=rng))
