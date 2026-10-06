@@ -24,10 +24,10 @@ os.environ.setdefault("MKL_NUM_THREADS", "1")
 import argparse, itertools, json, time
 import numpy as np
 
-Nx, Ny, Nz = 128, 32, 128
+Nx = int(os.environ.get("TOY_NX", 128)); Ny = int(os.environ.get("TOY_NY", 32)); Nz = int(os.environ.get("TOY_NZ", 128))
 TAU = 2.036
 OMEGA = 1.0 / TAU
-H = 128.0
+H = float(os.environ.get("TOY_H", Nx))      # 半チャネル高さ（格子単位）。N を倍にしたら H も倍にすると同じ物理プロファイル
 UMAX = 0.05
 MODES = [(1, 1), (2, 1), (1, 2), (3, 2)]
 C = np.array(list(itertools.product([-1, 0, 1], repeat=3)), dtype=float)  # q = 9(cx+1)+3(cy+1)+(cz+1)
